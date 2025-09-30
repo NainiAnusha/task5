@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Task 5 - Productivity Dashboard</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", sans-serif;
+      background: #f1f8f9;
+      color: #222;
+    }
+
+    header {
+      background: #004d40;
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
+
+    nav {
+      background: #00796b;
+      padding: 10px;
+      text-align: center;
+    }
+
+    nav a {
+      color: white;
+      margin: 0 15px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    section {
+      background: white;
+      margin: 20px;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      margin-top: 0;
+      color: #00695c;
+    }
+
+    @media (max-width: 768px) {
+      nav {
+        display: flex;
+        flex-direction: column;
+      }
+      nav a {
+        margin: 8px 0;
+      }
+    }
+
+    .question {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .options button {
+      display: block;
+      width: 100%;
+      margin: 5px 0;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      background: #0288d1;
+      color: white;
+      cursor: pointer;
+    }
+
+    .options button:hover {
+      background: #01579b;
+    }
+
+    #next-btn {
+      margin-top: 10px;
+      padding: 10px 20px;
+      background: #43a047;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      display: none;
+      cursor: pointer;
+    }
+
+    #weatherResult {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    input, button.weather-btn {
+      padding: 10px;
+      margin-top: 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    button.weather-btn {
+      background: #ff8800;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    .input-group {
+      display: flex;
+    }
+
+    .input-group input {
+      flex: 1;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    .input-group button {
+      margin-left: 10px;
+      background: #0077b6;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 15px;
+      cursor: pointer;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      background: #f1f1f1;
+      margin: 8px 0;
+      padding: 10px;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    li.completed {
+      text-decoration: line-through;
+      background: #d3f9d8;
+    }
+
+    .actions button {
+      margin-left: 5px;
+      font-size: 12px;
+      padding: 5px 8px;
+    }
+
+    footer {
+      text-align: center;
+      background: #004d40;
+      color: white;
+      padding: 15px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>🚀 Productivity Dashboard</h1>
+    <p>Final Project - Task 5 (Web Development Internship at ApexPlanet)</p>
+  </header>
+
+  <nav>
+    <a href="#quiz">Quiz</a>
+    <a href="#weather">Weather</a>
+    <a href="#todo">To-Do List</a>
+  </nav>
+
+  <!-- Quiz Section -->
+  <section id="quiz">
+    <h2>📝 Quiz App</h2>
+    <div id="quizBox">
+      <div class="question" id="question">Question</div>
+      <div class="options" id="options"></div>
+      <button id="next-btn" onclick="nextQuestion()">Next</button>
+      <div id="quizResult"></div>
+    </div>
+  </section>
+
+  <!-- Weather Section -->
+  <section id="weather">
+    <h2>🌦 Weather App</h2>
+    <input type="text" id="cityInput" placeholder="Enter city name">
+    <button class="weather-btn" onclick="getWeather()">Get Weather</button>
+    <div id="weatherResult"></div>
+  </section>
+
+  <!-- To-Do List Section -->
+  <section id="todo">
+    <h2>✅ To-Do List</h2>
+    <div class="input-group">
+      <input type="text" id="taskInput" placeholder="Enter a task">
+      <button onclick="addTask()">Add</button>
+    </div>
+    <ul id="taskList"></ul>
+    <button onclick="clearTasks()" style="background:#d62828;color:white;border:none;border-radius:6px;padding:10px;margin-top:10px;cursor:pointer;">Clear All</button>
+  </section>
+
+  <footer>
+    © 2025 Final Project | Built by Naini Anusha
+  </footer>
+
+  <script>
+    // ---------------- QUIZ APP ----------------
+    const quizData = [
+      { question: "Which language structures web pages?", options: ["HTML","CSS","JS","Python"], correct: "HTML" },
+      { question: "Which CSS property changes text color?", options: ["font-style","text-color","color","background"], correct: "color" },
+      { question: "Which method fetches API data?", options: ["fetch()","getData()","request()","load()"], correct: "fetch()" }
+    ];
+    let currentQuestion = 0, score = 0;
+    const questionEl = document.getElementById("question");
+    const optionsEl = document.getElementById("options");
+    const nextBtn = document.getElementById("next-btn");
+    const resultEl = document.getElementById("quizResult");
+
+    function loadQuestion() {
+      const q = quizData[currentQuestion];
+      questionEl.textContent = q.question;
+      optionsEl.innerHTML = "";
+      resultEl.textContent = "";
+      q.options.forEach(option => {
+        const btn = document.createElement("button");
+        btn.textContent = option;
+        btn.onclick = () => checkAnswer(option, q.correct, btn);
+        optionsEl.appendChild(btn);
+      });
+    }
+
+    function checkAnswer(answer, correct, clickedBtn) {
+      const allButtons = optionsEl.querySelectorAll("button");
+      allButtons.forEach(btn => btn.disabled = true);
+      if (answer === correct) {
+        score++;
+        resultEl.textContent = "✅ Correct!";
+        resultEl.style.color = "green";
+      } else {
+        resultEl.textContent = "❌ Wrong!";
+        resultEl.style.color = "red";
+      }
+      nextBtn.style.display = "block";
+    }
+
+    function nextQuestion() {
+      currentQuestion++;
+      if (currentQuestion < quizData.length) {
+        loadQuestion();
+        nextBtn.style.display = "none";
+      } else {
+        questionEl.style.display = "none";
+        optionsEl.style.display = "none";
+        nextBtn.style.display = "none";
+        resultEl.textContent = `🏆 Final Score: ${score}/${quizData.length}`;
+        resultEl.style.color = "blue";
+        showRestart();
+      }
+    }
+
+    function showRestart() {
+      const restartBtn = document.createElement("button");
+      restartBtn.textContent = "Restart Quiz";
+      restartBtn.style.marginTop = "10px";
+      restartBtn.onclick = () => {
+        currentQuestion = 0;
+        score = 0;
+        questionEl.style.display = "block";
+        optionsEl.style.display = "block";
+        loadQuestion();
+        restartBtn.remove();
+      };
+      resultEl.appendChild(document.createElement("br"));
+      resultEl.appendChild(restartBtn);
+    }
+
+    loadQuestion();
+
+    // ---------------- WEATHER APP ----------------
+    async function getWeather() {
+      const city = document.getElementById("cityInput").value.trim();
+      const resultDiv = document.getElementById("weatherResult");
+      if (!city) {
+        resultDiv.textContent = "⚠ Please enter a city name.";
+        resultDiv.style.color = "red";
+        return;
+      }
+
+      try {
+        const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${city}`);
+        const geoData = await geoRes.json();
+        if (!geoData.results || geoData.results.length === 0) {
+          resultDiv.textContent = "❌ City not found.";
+          resultDiv.style.color = "red";
+          return;
+        }
+
+        const { latitude, longitude } = geoData.results[0];
+        const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`);
+        const weatherData = await weatherRes.json();
+
+        resultDiv.innerHTML = `🌡 Temperature: ${weatherData.current_weather.temperature}°C<br>💨 Wind Speed: ${weatherData.current_weather.windspeed} km/h`;
+        resultDiv.style.color = "black";
+
+      } catch (error) {
+        resultDiv.textContent = "❌ Could not fetch weather data.";
+        resultDiv.style.color = "red";
+      }
+    }
+
+    // ---------------- TO-DO LIST ----------------
+    const taskInput = document.getElementById("taskInput");
+    const taskList = document.getElementById("taskList");
+    window.onload = loadTasks;
+
+    function addTask() {
+      const text = taskInput.value.trim();
+      if (text === "") return alert("Please enter a task");
+      const li = createTaskElement(text);
+      taskList.appendChild(li);
+      saveTasks();
+      taskInput.value = "";
+    }
+
+    function createTaskElement(text, completed = false) {
+      const li = document.createElement("li");
+      if (completed) li.classList.add("completed");
+      const span = document.createElement("span");
+      span.textContent = text;
+      const actions = document.createElement("div");
+      actions.classList.add("actions");
+
+      const completeBtn = document.createElement("button");
+      completeBtn.textContent = "✅";
+      completeBtn.onclick = () => {
+        li.classList.toggle("completed");
+        saveTasks();
+      };
+
+      const editBtn = document.createElement("button");
+      editBtn.textContent = "✏";
+      editBtn.onclick = () => {
+        const newText = prompt("Edit task:", span.textContent);
+        if (newText) {
+          span.textContent = newText;
+          saveTasks();
+        }
+      };
+
+      const deleteBtn = document.createElement("button");
+      deleteBtn.textContent = "🗑";
+      deleteBtn.onclick = () => {
+        li.remove();
+        saveTasks();
+      };
+
+      actions.appendChild(completeBtn);
+      actions.appendChild(editBtn);
+      actions.appendChild(deleteBtn);
+      li.appendChild(span);
+      li.appendChild(actions);
+      return li;
+    }
+
+    function saveTasks() {
+      const tasks = [];
+      document.querySelectorAll("#taskList li").forEach(li => {
+        tasks.push({
+          text: li.querySelector("span").textContent,
+          completed: li.classList.contains("completed")
+        });
+      });
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+    }
+
+    function loadTasks() {
+      const saved = JSON.parse(localStorage.getItem("tasks")) || [];
+      saved.forEach(t => {
+        const li = createTaskElement(t.text, t.completed);
+        taskList.appendChild(li);
+      });
+    }
+
+    function clearTasks() {
+      if (confirm("Clear all tasks?")) {
+        localStorage.removeItem("tasks");
+        taskList.innerHTML = "";
+      }
+    }
+
+    // Add task on Enter key
+    taskInput.addEventListener("keypress", function (e) {
+      if (e.key === "Enter") {
+        addTask();
+      }
+    });
+  </script>
+
+</body>
+</html>
